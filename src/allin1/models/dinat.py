@@ -4,10 +4,25 @@
 """
 
 import math
+from abc import ABC, abstractmethod
+from typing import Callable, Optional, Tuple
+
 import torch
-from abc import ABC,  abstractmethod
-from typing import Optional, Tuple, Callable
-from natten.functional import natten1dav, natten1dqkrpb, natten2dav, natten2dqkrpb
+
+# NATTEN compatibility layer (0.17.x and >=0.20) without 'neighborhood_attention_generic'
+try:
+    # Old API (0.17.x)
+    from natten.functional import natten1dqkrpb as na1d_qk
+    from natten.functional import natten1dav    as na1d_av
+    from natten.functional import natten2dqkrpb as na2d_qk
+    from natten.functional import natten2dav    as na2d_av
+except ImportError:
+    try:
+        # New API (>=0.20)
+        from natten.functional import na1d_qk, na1d_av, na2d_qk, na2d_av
+    except ImportError:
+        # Final fallback
+        from .natten_compat import na1d_qk, na1d_av, na2d_qk, na2d_av
 from ..config import Config
 from .utils import *
 
@@ -96,6 +111,8 @@ class _NeighborhoodAttentionNd(ABC, nn.Module):
     
     # Compute NA between "query" and "key" to get the raw attention scores, and add relative positional biases.
     # attention_scores = natten2dqkrpb(query_layer, key_layer, self.rpb, self.dilation)
+    #attention_scores = self.nattendqkrpb(query_layer, key_layer, self.kernel_size, self.dilation, rpb=self.rpb)
+    #M1 CPU
     attention_scores = self.nattendqkrpb(query_layer, key_layer, self.rpb, self.kernel_size, self.dilation)
     
     # Normalize the attention scores to probabilities.
@@ -141,8 +158,8 @@ class NeighborhoodAttention1d(_NeighborhoodAttentionNd):
       torch.zeros(num_heads, (2 * self.kernel_size - 1)),
       requires_grad=True,
     )
-    self.nattendqkrpb = natten1dqkrpb
-    self.nattendav = natten1dav
+    self.nattendqkrpb = na1d_qk
+    self.nattendav = na1d_av
 
 
 class NeighborhoodAttention2d(_NeighborhoodAttentionNd):
@@ -159,8 +176,8 @@ class NeighborhoodAttention2d(_NeighborhoodAttentionNd):
       torch.zeros(num_heads, (2 * self.kernel_size - 1), (2 * self.kernel_size - 1)),
       requires_grad=True,
     )
-    self.nattendqkrpb = natten2dqkrpb
-    self.nattendav = natten2dav
+    self.nattendqkrpb = na2d_qk
+    self.nattendav = na2d_av
 
 
 # Copied from transformers.models.nat.modeling_nat.NeighborhoodAttentionOutput

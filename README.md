@@ -1,3 +1,78 @@
+# TL;DR
+
+### Docker @ Mac Os with M1/M2/M3 chip
+
+Build the image:
+```bash
+docker build -t allinone -f ./Dockerfile .
+```
+
+or execute: build_docker_image.sh
+
+#### Analyze a single file:
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/FILENAME.wav
+```
+
+#### Analyze multiple files:
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/song1.wav /app/input/song2.mp3 /app/input/song3.wav
+```
+
+#### Analyze all files in a directory:
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/*.wav
+```
+
+Or all audio files (WAV and MP3):
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/*
+```
+
+**Note:** Each audio file will generate its own JSON file with analysis results in the output directory.
+
+
+### Conda environment @ MacOS
+```bash
+  conda create -n alliono-py3.8.3 python==3.8.3
+  pip install -r requirements.txt 
+  pip install allin1 
+```
+
+## Notes on Compatibility and Deployment (2025 Update by hordia)
+
+- **NATTEN Import Patches:**  
+  The codebase now includes patches to handle imports for different versions of the NATTEN library. This ensures compatibility across various environments and NATTEN releases.
+
+- **Apple Silicon (MacOS ARM):**  
+  Both Docker and manual installation have been tested and confirmed to work on MacOS systems with ARM-based Apple Silicon (M1, M2, M3). You can use the package natively or via Docker on these devices.
+
+- **Google Cloud Platform (GCP) Deployment:**  
+  The provided Dockerfile can be used to run the analyzer as a GCP Job, with support for reading from and writing to Google Cloud Storage buckets.  
+  **Note:** Currently, only the GPU version of the Dockerfile works reliably for GCP Jobs. The CPU version is not yet functional.
+
+If you encounter issues with NATTEN or deployment on specific platforms, please check the relevant Dockerfile and patches, or open an issue.
+
 # All-In-One Music Structure Analyzer
 
 [![Visual Demo](https://img.shields.io/badge/Visual-Demo-8A2BE2)](https://taejun.kim/music-dissector/)
@@ -464,3 +539,4 @@ If you use this package for your research, please cite the following paper:
   year={2023}
 }
 ```
+
