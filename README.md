@@ -59,6 +59,11 @@ docker run -it \
   pip install allin1 
 ```
 
+# GCP JOB
+
+For a GPU based Google Cloud Platform (GCP) job, please check: https://github.com/docker-audio-tools/all-in-one-docker-gpu-job
+
+
 ## Notes on Compatibility and Deployment (2025 Update by hordia)
 
 - **NATTEN Import Patches:**  
