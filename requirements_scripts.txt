@@ -1,0 +1,4 @@
+# Requirements para los scripts de generación de archivos ALS y MIDI
+# Instalar con: pip install -r requirements_scripts.txt
+
+midiutil==1.2.1
